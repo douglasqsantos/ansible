@@ -6,11 +6,11 @@ control:
 centos:
   hosts:
     centos01:
-      ansible_host: 172.16.30.22
+      ansible_host: 10.0.0.22
 ubuntu:
   hosts:
     ubuntu01:
-    ansible_host: 172.16.30.21
+      ansible_host: 10.0.0.21
 linux:
   children:
     centos:

@@ -1,0 +1,13 @@
+---
+# handlers file for zabbix_agent
+- name: Stop Zabbix Agent
+  systemd:
+    name: zabbix-agent
+    state: stopped
+    daemon_reload: yes
+
+- name: Restart Zabbix Agent
+  systemd:
+    name: zabbix-agent
+    state: restarted
+    daemon_reload: yes
