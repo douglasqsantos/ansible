@@ -1,0 +1,17 @@
+---
+control:
+  hosts:
+    mac:
+      ansible_connection: local
+centos:
+  hosts:
+    centos01:
+      ansible_host: 172.16.30.22
+ubuntu:
+  hosts:
+    ubuntu01:
+    ansible_host: 172.16.30.21
+linux:
+  children:
+    centos:
+    ubuntu:
