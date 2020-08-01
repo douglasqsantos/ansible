@@ -1,0 +1,181 @@
+---
+# tasks file for common
+
+## Packages for Ubuntu/Debian
+- name: Install Base Packages on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items: "{{ packages_deb }}"
+  when: ansible_distribution_file_variety == 'Debian'
+  tags:
+    - install_base_packages_on_debian_base
+    - install_base_packages
+
+## Packages for CentOS
+- name: Install Base Packages on CentOS
+  yum:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items: "{{ packages_rpm }}"
+  when: ansible_distribution == 'CentOS'
+  tags:
+    - install_base_packages_on_centos
+    - install_base_packages
+
+### MOTD
+- name: Configure a MOTD (message of the day)
+  copy:
+    src: motd
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: '0644'
+  notify: MOTD changed
+  tags:
+    - motd
+
+- name: Register unwanted motd files
+  stat:
+    path: "{{motd_path}}/{{item}}"
+  register: filecheck
+  with_items: "{{ unwanted_motd_files | default([]) }}"
+  when: 
+    - ansible_distribution == "Ubuntu"
+  tags:
+    - motd
+
+- name: Check if unwanted motd files are executable and remove the executable bit
+  file:
+    path: "{{motd_path}}/{{item.item}}"
+    state: touch
+    mode: '0644'
+  with_items: "{{ filecheck.results }}"
+  when:
+    - ansible_distribution == "Ubuntu"
+    - item.stat.exists == true and item.stat.executable == True
+  tags:
+    - motd
+
+## BASHRC
+- name: Configure the .bashrc for root
+  copy:
+    src: bashrc
+    dest: /root/.bashrc
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Root bashrc changed
+  tags:
+    - bashrc
+    - bashrc_root
+
+- name: Configure the .bashrc for common user
+  copy:
+    src: bashrc
+    dest: "/home/{{ item }}/.bashrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  with_items:
+    - "{{ common_users }}"
+  notify: Common bashrc changed
+  tags:
+    - bashrc
+    - bashrc_common
+
+## VIMRC
+- name: Configure the .vimrc for root
+  copy:
+    src: vimrc
+    dest: /root/.vimrc
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Root vimrc changed
+  tags:
+    - vimrc
+    - vimrc_root
+
+- name: Creating the vim colors directory
+  file:
+    path: "/root/{{ vim_colors }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags:
+    - vimrc
+    - vimrc_root
+
+- name: Configure the .vim for root
+  copy:
+    src: "{{ item }}"
+    dest: "/root/{{ vim_colors }}/{{ item }}"
+    owner: root
+    group: root
+    mode: '0644'
+  with_items:
+    - "{{ vim_files }}"
+  notify: Root .vim changed
+  tags:
+    - vimrc
+    - vimrc_root
+
+- name: Creating the vim colors directory
+  file:
+    path: "/home/{{ item }}/{{ vim_colors }}"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0755'
+  with_items:
+    - "{{ common_users }}"
+  tags:
+    - vimrc
+    - vimrc_common
+
+- name: Configure the .vimrc for common user
+  copy:
+    src: vimrc
+    dest: "/home/{{ item }}/.vimrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  with_items:
+    - "{{ common_users }}"
+  notify: Common vimrc changed
+  tags:
+    - vimrc
+    - vimrc_common
+
+- name: Configure the .vim for common user
+  copy:
+    src: "{{ item.1 }}"
+    dest: "/home/{{ item.0 }}/{{ vim_colors }}/{{ item.1 }}"
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+    mode: '0644'
+  with_nested:
+    - "{{ common_users }}"
+    - "{{ vim_files }}"
+  notify: Common vimrc changed
+  tags:
+    - vimrc
+    - vimrc_common
+
+## SSH PubKeys
+- name: Set up Authorized Keys
+  authorized_key:
+    user: "{{ item.0 }}"
+    state: present
+    key: "{{ lookup('file', item.1) }}"
+  with_nested:
+    - "{{ common_users }}"
+    - "{{ common_keys }}"
+  notify: Authorized Keys
+  tags:
+    - ssh_pubkeys
+...

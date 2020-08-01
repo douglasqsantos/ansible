@@ -1,0 +1,98 @@
+---
+# defaults file for common
+motd_path: '/etc/update-motd.d'
+unwanted_motd_files:
+  - 00-header
+  - 10-help-text
+  - 50-landscape-sysinfo
+  - 50-motd-news
+  - 80-esm
+  - 80-livepatch
+  - 90-updates-available
+  - 91-release-upgrade
+  - 92-unattended-upgrades
+  - 95-hwe-eol
+  - 97-overlayroot
+  - 98-fsck-at-reboot
+  - 98-reboot-required
+common_users:
+  - douglas
+vim_files:
+  - gruvbox.vim
+  - monokai.vim
+vim_colors: '.vim/colors'
+common_keys:
+  - id_rsa.pub
+packages_deb:
+  - python-apt
+  - htop
+  - vim
+  - vim-scripts
+  - vim-doc
+  - less
+  - locate
+  - ntpdate
+  - sudo
+  - git
+  - rsync
+  - aptitude
+  - xz-utils
+  - unrar
+  - zip
+  - unzip
+  - rar
+  - p7zip
+  - bzip2
+  - telnet
+  - dstat
+  - dos2unix
+  - strace
+  - ltrace
+  - tcpdump
+  - nmap
+  - dmidecode
+  - pciutils
+  - procinfo
+  - ifstat
+  - wget
+  - curl
+  - dnsutils
+  - bc
+  - fish
+  - netcat
+packages_rpm:
+  - epel-release
+  - wget
+  - curl
+  - bind-utils
+  - dos2unix
+  - tcpdump
+  - nmap
+  - git
+  - sudo
+  # - chrony
+  # - ntpdate
+  - rsync
+  - telnet
+  - vim-enhanced
+  - zip
+  - unzip
+  # - unrar
+  # - rar
+  - p7zip
+  - bzip2
+  - xz
+  - less
+  # - ifstat
+  - dstat
+  - pciutils
+  - dmidecode
+  - htop
+  - usbutils
+  - strace
+  - ltrace
+  - bc
+  # - fish
+  - sysstat
+  - nc
+...

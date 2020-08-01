@@ -7,11 +7,16 @@ centos:
   hosts:
     centos01:
       ansible_host: 10.0.0.22
+debian:
+  hosts:
+    debian01:
+      ansible_host: 10.0.0.41
 ubuntu:
   hosts:
     ubuntu01:
-      ansible_host: 10.0.0.21
+      ansible_host: 10.0.0.42
 linux:
   children:
     centos:
+    debian:
     ubuntu:

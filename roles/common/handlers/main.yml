@@ -1,0 +1,30 @@
+---
+# handlers file for common
+- name: MOTD changed
+  debug:
+    msg: The MOTD was changed
+
+- name: Root bashrc changed
+  debug:
+    msg: Root bashrc changed
+
+- name: Common bashrc changed
+  debug:
+    msg: Common bashrc changed
+
+- name: Root vimrc changed
+  debug:
+    msg: Root vimrc changed
+
+- name: Root .vim changed
+  debug:
+    msg: Root .vim changed
+
+- name: Common vimrc changed
+  debug:
+    msg: Common vimrc changed
+
+- name: Authorized Keys
+  debug:
+    msg: Authorized Keys configured
+...

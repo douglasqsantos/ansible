@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  webapp:
+    image: douglasqsantos/ansible
+    hostname: ansible
+    build:
+      context: ./Docker
+      dockerfile: Dockerfile
