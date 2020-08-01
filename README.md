@@ -113,7 +113,7 @@ localhost | SUCCESS => {
 
 Now we can exec the image
 ```bash
-docker run --rm -it -v "${PWD}:/ansible/PrbAnsible" -w /ansible ocpreg.azurecr.io/prbansible:ansible-2.9.11 fish
+docker run --rm -it -v "${PWD}:/ansible/workdir" -w /ansible douglasqsantos/ansible fish
 ```
 
 Now we need to import the environment
@@ -134,13 +134,13 @@ ansible 2.9.11
 
 Let's access the directory with the source code
 ```bash
-cd PrbAnsible/
+cd workdir/
 ```
 
 Now let's ping the localhost
 ```bash
 ansible all -i localhost, -c local -m ping
-[WARNING]: Ansible is being run in a world writable directory (/ansible/PrbAnsible), ignoring it as an ansible.cfg source. For more information see
+[WARNING]: Ansible is being run in a world writable directory (/ansible/workdir), ignoring it as an ansible.cfg source. For more information see
 https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
 [WARNING]: Platform linux on host localhost is using the discovered Python interpreter at /usr/bin/python3, but future installation of another Python interpreter could change this. See
 https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
@@ -171,7 +171,7 @@ and check to make sure that only the key(s) you wanted were added.
 
 ## Checking if all the nodes are reacheable 
 
-```json
+```bash
 ansible linux -i inventories/homolog -m ping
 [WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
 https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
@@ -199,7 +199,7 @@ ubuntu01 | SUCCESS => {
 ```
 
 Listing the information about the SO
-```json
+```bash
 ansible linux -i inventories/homolog -m setup -a 'filter=ansible_distribution*'
 [WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
 https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
