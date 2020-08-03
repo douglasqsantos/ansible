@@ -1,5 +1,18 @@
 # Ansible Repository 
 
+## TODO:
+- [ ] Upgrade the venv
+- [ ] Configure the timezone
+- [ ] Configure docker
+- [ ] Configure ipv6
+
+Upgrade the venv
+```bash
+python3 -m venv venv_ansible
+source bin/venv_ansible/activate
+pip install --upgrade pip setuptools
+```
+
 ## Installing on Mac OS X
 
 Installing the VirtualEnv
@@ -242,6 +255,12 @@ centos01 | SUCCESS => {
     },
     "changed": false
 }
+```
+
+## Executing into a single host
+
+```bash
+ansible-playbook -i inventories/homolog playbooks.yml --limit ubuntu01
 ```
 
 ## Executing tasks with tags
