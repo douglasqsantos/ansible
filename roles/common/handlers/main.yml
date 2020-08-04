@@ -27,4 +27,24 @@
 - name: Authorized Keys
   debug:
     msg: Authorized Keys configured
+
+- name: Stop Rsyslog
+  systemd:
+    name: rsyslog.service
+    state: stopped
+    daemon_reload: yes
+
+- name: Start Rsyslog
+  systemd:
+    name: rsyslog.service
+    state: restarted
+    daemon_reload: yes
+
+- name: Create Flag Synced
+  file:
+    path: "{{ logs_sync_flag }}"
+    state: touch
+    mode: 600
+    owner: 'root'
+    group: 'root'
 ...

@@ -81,7 +81,7 @@
     path: "{{motd_path}}/{{item}}"
   register: filecheck
   with_items: "{{ unwanted_motd_files | default([]) }}"
-  when: 
+  when:
     - ansible_distribution == "Ubuntu"
   tags:
     - motd
@@ -252,10 +252,212 @@
   tags:
     - disable_ipv6
 
-## Timezone 
+## Timezone
 - name: "Set timezone to {{ timezone }}"
   timezone:
     name: "{{ timezone }}"
   tags:
     - set_timezone
+
+## Get the Disk for Logs LVM
+- name: Getting the Log Disk do use in LVM
+  fdisk:
+    bytes: "{{ log_disk_bytes }}"
+  register: log_disk_to_use
+  when:
+    - (log_disk_bytes is defined) and (log_disk_bytes >0)
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+
+## Create the VG
+- name: Create VG [{{logs_vg_name}}] for Log Disk
+  lvg:
+    vg: "{{ logs_vg_name }}"
+    pvs: "{{ log_disk_to_use.stdout }}"
+  when:
+    - (log_disk_to_use.stdout is defined) and (log_disk_to_use.stdout | length == 8)
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+
+## Create the LVM
+- name: Create LVM [{{logs_lv_name}}] for Log Disk with size [{{logs_lv_size}}]
+  lvol:
+    vg: "{{ logs_vg_name }}"
+    lv: "{{ logs_lv_name }}"
+    size: "{{ logs_lv_size }}"
+    shrink: no
+  when:
+    - (log_disk_to_use.stdout is defined) and (log_disk_to_use.stdout | length == 8)
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+
+## Creating the FS
+- name: Create a [{{ logs_fs_type }}] filesystem on ["/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"]
+  filesystem:
+    fstype: "{{ logs_fs_type }}"
+    dev: "/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"
+    force: "{{ logs_fs_force }}"
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+
+## Checking Device to be mounted
+- name: Check if the device ["/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"] exist
+  stat:
+    path: "/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"
+  register: logs_lvm_disk
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+
+## Need to be sure that the partition is or not synced...
+- name: Check if the device ["{{ logs_sync_flag }}"] exist
+  stat:
+    path: "{{ logs_sync_flag }}"
+  register: logs_sync_flag_stat
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+
+## Mount the Logs Disk
+- name: Mount up ["/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"] on "{{ tmp_logs_mount_point }}"
+  mount:
+    path: "{{ tmp_logs_mount_point }}"
+    src: "/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"
+    fstype: "{{ logs_fs_type }}"
+    opts: defaults,noatime
+    state: mounted
+  when:
+    - logs_mount == 'yes'
+    - logs_lvm_disk.stat.exists == True
+    - logs_sync_flag_stat.stat.exists == False
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+  notify: Stop Rsyslog
+
+## Synchronization of logs
+- name: Synchronization from ["{{ logs_mount_point }}"] to "{{ tmp_logs_mount_point }}"
+  synchronize:
+    src: "{{ logs_mount_point }}/"
+    dest: "{{ tmp_logs_mount_point }}/"
+    archive: yes
+    links: yes
+  delegate_to: "{{ inventory_hostname }}"
+  when:
+    - logs_mount == 'yes'
+    - logs_lvm_disk.stat.exists == True
+    - logs_sync_flag_stat.stat.exists == False
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+  notify: Create Flag Synced
+
+## Mount the Data Disk
+- name: Umount up ["/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"] on "{{ tmp_logs_mount_point }}"
+  mount:
+    path: "{{ tmp_logs_mount_point }}"
+    state: absent
+  when:
+    - logs_mount == 'yes'
+    - logs_lvm_disk.stat.exists == True
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+
+## Mount the Logs Disk
+- name: Mount up ["/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"] on "{{ logs_mount_point }}"
+  mount:
+    path: "{{ logs_mount_point }}"
+    src: "/dev/mapper/{{ logs_vg_name }}-{{ logs_lv_name }}"
+    fstype: "{{ logs_fs_type }}"
+    opts: defaults,noatime
+    state: mounted
+  when:
+    - logs_mount == 'yes'
+    - logs_lvm_disk.stat.exists == True
+  tags:
+    - lvm_disks
+    - check_lvm_logs_disk
+    - mount_lvm_logs_disk
+  notify: Start Rsyslog
+
+## Get the Disk for Data LVM
+- name: Getting the Data Disk do use in LVM
+  fdisk:
+    bytes: "{{ data_disk_bytes }}"
+  register: data_disk_to_use
+  when:
+    - (data_disk_bytes is defined) and (data_disk_bytes >0)
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+
+## Create the VG
+- name: Create VG [{{data_vg_name}}] for Data Disk
+  lvg:
+    vg: "{{ data_vg_name }}"
+    pvs: "{{ data_disk_to_use.stdout }}"
+  when:
+    - (data_disk_to_use.stdout is defined) and (data_disk_to_use.stdout | length == 8)
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+
+## Create the LVM
+- name: Create LVM [{{data_lv_name}}] for Data Disk with size [{{data_lv_size}}]
+  lvol:
+    vg: "{{ data_vg_name }}"
+    lv: "{{ data_lv_name }}"
+    size: "{{ data_lv_size }}"
+    shrink: no
+  when:
+    - (data_disk_to_use.stdout is defined) and (data_disk_to_use.stdout | length == 8)
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+
+## Creating the FS
+- name: Create a [{{ data_fs_type }}] filesystem on ["/dev/mapper/{{data_vg_name}}-{{ data_lv_name }}"]
+  filesystem:
+    fstype: "{{ data_fs_type }}"
+    dev: "/dev/mapper/{{ data_vg_name }}-{{ data_lv_name }}"
+    force: "{{ data_fs_force }}"
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+
+## Checking Device to be mounted
+- name: Check if the device ["/dev/mapper/{{data_vg_name}}-{{ data_lv_name }}"] exist
+  stat:
+    path: "/dev/mapper/{{data_vg_name}}-{{ data_lv_name }}"
+  register: data_lvm_disk
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+    - mount_lvm_data_disk
+
+## Mount the Data Disk
+- name: Mount up ["/dev/mapper/{{data_vg_name}}-{{ data_lv_name }}"] on "{{ data_mount_point }}"
+  mount:
+    path: "{{ data_mount_point  }}"
+    src: "/dev/mapper/{{data_vg_name}}-{{ data_lv_name }}"
+    fstype: "{{ data_fs_type }}"
+    opts: defaults,noatime
+    state: mounted
+  when:
+    - data_mount == 'yes'
+    - data_lvm_disk.stat.exists == True
+  tags:
+    - lvm_disks
+    - check_lvm_data_disk
+    - mount_lvm_data_disk
 ...

@@ -9,6 +9,7 @@
     state: present
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_add_repo_key
@@ -27,6 +28,7 @@
   when:
     - ansible_distribution_file_variety == 'Debian'
     - remove_docker_olds == 'yes'
+    - remove_docker == 'yes'
   tags:
     - docker
     - docker_remove_from_debian_base
@@ -53,6 +55,7 @@
     - "{{ packages_deps_deb }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_install_deps_on_debian_base
@@ -70,6 +73,7 @@
     group: root
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_conf_repo
@@ -85,6 +89,7 @@
     - "{{ packages_docker_deb }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_install_on_debian_base
@@ -97,6 +102,7 @@
     mode: '0644'
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_compose_install
@@ -110,6 +116,9 @@
     append: yes
   with_items:
     - "{{ common_users }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_add_user_to_group
@@ -121,6 +130,8 @@
     name: docker
     enabled: yes
     masked: no
+  when:
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_enabled
@@ -135,6 +146,7 @@
     checksum: "{{ docker_compose_checksum }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_compose_install
@@ -147,8 +159,36 @@
     mode: '0644'
   when:
     - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
   tags:
     - docker
     - docker_compose_install
     - docker_install
+
+## Remove Docker
+- name: Remove Docker on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ packages_docker_deb }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker == 'yes'
+  tags:
+    - remove_docker_on_debian_base
+
+## Remove files
+- name: Delete Docker completion Files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ docker_completion_path }}"
+    - "{{ docker_compose_bash_completion_path }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker == 'yes'
+  tags:
+    - remove_docker_on_debian_base
 ...

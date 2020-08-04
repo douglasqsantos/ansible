@@ -1,5 +1,23 @@
 ---
 # defaults file for common
+log_disk_bytes: 0
+logs_lv_size: '100%FREE'
+logs_vg_name: 'vg_logs'
+logs_lv_name: 'lv_logs'
+logs_fs_type: 'xfs'
+logs_fs_force: 'no'
+logs_mount_point: '/var/log'
+tmp_logs_mount_point: '/mnt/log'
+logs_sync_flag: "{{ logs_mount_point }}/ansible_synced"
+logs_mount: 'yes'
+data_disk_bytes: 0
+data_lv_size: '100%FREE'
+data_vg_name: 'vg_data'
+data_lv_name: 'lv_data'
+data_fs_type: 'xfs'
+data_fs_force: 'no'
+data_mount_point: '/data'
+data_mount: 'yes'
 motd_path: '/etc/update-motd.d'
 unwanted_motd_files:
   - 00-header

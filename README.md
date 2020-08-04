@@ -1,12 +1,14 @@
-# Ansible Repository 
+# Ansible Repository
 
 ## TODO:
 - [ ] Upgrade the venv
 - [X] Configure the timezone
-- [ ] Configure docker
+- [X] Configure docker Ubuntu/Debian
+- [ ] Configure docker CentOS
 - [X] Configure ipv6
-- [ ] LVM
+- [X] LVM
 - [ ] Cadvisor
+- [ ] Node_exporter
 - [ ] logspout
 - [ ] MongoDB
 
@@ -188,6 +190,11 @@ Now try logging into the machine, with:   "ssh 'douglas@10.0.0.22'"
 and check to make sure that only the key(s) you wanted were added.
 ```
 
+## Listing the information about the SO
+```bash
+ansible linux -i inventories/homolog -m setup -a 'filter=ansible_distribution*'
+```
+
 ## Checking if all the nodes are reacheable 
 
 ```bash
@@ -354,10 +361,7 @@ debian01                   : ok=2    changed=0    unreachable=0    failed=0    s
 ubuntu01                   : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```
 
-
-## Executing the Zabbix Agent Role
-
-Checking the tags availables
+## Checking the tags availables
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --list-tags
 
@@ -367,16 +371,92 @@ playbook: playbooks.yml
       TASK TAGS: [zbx_bkp_files, zbx_config_cli, zbx_delete_defaults, zbx_enable_cli, zbx_install_cli, zbx_install_cli_on_centos, zbx_install_cli_on_debian_base, zbx_install_release, zbx_install_release_on_centos, zbx_install_release_on_debian_base, zbx_remove, zbx_remove_cli, zbx_remove_from_centos, zbx_remove_from_debian_base]
 ```
 
-Let's check the playbook syntax
+## Let's check the playbook syntax
 ```bash
 ansible-playbook --syntax-check -i inventories/homolog playbooks.yml
 
 playbook: playbooks.yml
 ```
 
-Let's execute the role
+## Let's execute the role
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml
+```
+
+## Testing the connection with the a host group
+```json
+ansible group03 -i inventories/homolog -m ping
+group03_node05 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+[...]
+```
+
+## Executing the Zabbix Agent Role on Host01
+
+Let's check the playbook configuration
+```bash
+ansible-playbook --syntax-check -i inventories/homolog zbx_agent_playbook.yml
+
+playbook: zbx_agent_playbook.yml
+```
+
+Let's execute the playbook
+```bash
+ansible-playbook -i inventories/homolog zbx_agent_playbook.yml
+
+PLAY [host_dev] *****************************************************************************************************************************************************************************
+TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
+
+TASK [zabbix_agent : Remove Packages on CentOS] *********************************************************************************************************************************************skipping: [pega02]
+
+TASK [zabbix_agent : Remove Packages on Ubuntu] *********************************************************************************************************************************************changed: [pega02]
+
+TASK [zabbix_agent : Clean useless packages from the cache] *********************************************************************************************************************************changed: [pega02]
+
+TASK [zabbix_agent : Install Zabbix Release on CentOS] **************************************************************************************************************************************skipping: [pega02]
+
+TASK [zabbix_agent : Install Zabbix Release on Ubuntu] **************************************************************************************************************************************[changed: [pega02]
+
+TASK [zabbix_agent : Install Zabbix Agent on Ubuntu] ****************************************************************************************************************************************changed: [pega02]
+
+TASK [zabbix_agent : Install Zabbix Agent on CentOS] ****************************************************************************************************************************************skipping: [pega02]
+
+TASK [zabbix_agent : Enable Zabbix Agent] ***************************************************************************************************************************************************ok: [pega02]
+
+TASK [zabbix_agent : Find Zabbix Agent Files] ***********************************************************************************************************************************************ok: [pega02]
+
+TASK [zabbix_agent : Backup Find Zabbix Agent Files] ****************************************************************************************************************************************changed: [pega02] => (item={'uid': 0, 'woth': False, 'mtime': 1593414000.0, 'inode': 791072, 'isgid': False, 'size': 13936, 'roth': True, 'isuid': False, 'isreg': True, 'pw_name': 'root', 'gid': 0, 'ischr': False, 'wusr': True, 'xoth': False, 'rusr': True, 'nlink': 1, 'issock': False, 'rgrp': True, 'gr_name': 'root', 'path': '/etc/zabbix/zabbix_agentd.conf', 'xusr': False, 'atime': 1596221043.4076946, 'isdir': False, 'ctime': 1596221043.0156934, 'isblk': False, 'xgrp': False, 'dev': 2049, 'wgrp': False, 'isfifo': False, 'mode': '0644', 'islnk': False})
+
+TASK [zabbix_agent : Remove Custom files for Zabbix Agent] **********************************************************************************************************************************changed: [pega02] => (item={'uid': 0, 'woth': False, 'mtime': 1593414000.0, 'inode': 791072, 'isgid': False, 'size': 13936, 'roth': True, 'isuid': False, 'isreg': True, 'pw_name': 'root', 'gid': 0, 'ischr': False, 'wusr': True, 'xoth': False, 'rusr': True, 'nlink': 1, 'issock': False, 'rgrp': True, 'gr_name': 'root', 'path': '/etc/zabbix/zabbix_agentd.conf', 'xusr': False, 'atime': 1596221043.4076946, 'isdir': False, 'ctime': 1596221043.0156934, 'isblk': False, 'xgrp': False, 'dev': 2049, 'wgrp': False, 'isfifo': False, 'mode': '0644', 'islnk': False})
+
+TASK [zabbix_agent : Creating the Zabbix Agent Custom File Directory] ***********************************************************************************************************************ok: [pega02]
+
+TASK [Template zabbix_agentd.conf] **********************************************************************************************************************************************************changed: [pega02]
+
+RUNNING HANDLER [zabbix_agent : Stop Zabbix Agent] ******************************************************************************************************************************************changed: [pega02]
+
+RUNNING HANDLER [zabbix_agent : Restart Zabbix Agent] ***************************************************************************************************************************************changed: [pega02]
+
+PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=13   changed=9    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
+```
+
+## Executing the Zabbix Agent Role
+
+Let's check the playbook syntax
+```bash
+ansible-playbook --syntax-check -i inventories/homolog zbx_agent_playbook.yml
+
+playbook: zbx_agent_playbook.yml
+```
+
+Let's execute the role
+```bash
+ansible-playbook -i inventories/homolog zbx_agent_playbook.yml
 
 PLAY [linux] **************************************************************************************************************************************************
 
@@ -456,7 +536,7 @@ Executing only tasks with tag bashrc
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --tags="bashrc"
 
-PLAY [linux] *****************************************************************************************************************************************************************************
+PLAY [host_dev] *****************************************************************************************************************************************************************************
 TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
 
 TASK [common : Configure the .bashrc for root] **********************************************************************************************************************************************ok: [pega02]
@@ -475,13 +555,45 @@ Excuting only tasks with tag ssh_pubkeys
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --tags="ssh_pubkeys"
 
-PLAY [linux] *****************************************************************************************************************************************************************************
+PLAY [host_dev] *****************************************************************************************************************************************************************************
 TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
 
 TASK [common : Set up Authorized Keys] ******************************************************************************************************************************************************ok: [pega02] => (item=['jmadmin', 'jm004.pem.pub'])
 
 PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
 ```
+
+We can execute a single role in the playbook if it has some tag like
+```yaml
+[...]
+  - role: docker
+    vars:
+      docker_compose_version: '1.26.2'
+      remove_docker: 'yes'
+    tags:
+      - role_docker
+```
+
+We can list the tags
+```bash
+ansible-playbook -i inventories/production --list-tags playbooks-production.yml 
+
+playbook: playbooks-production.yml
+
+  play #1 (group_prod): group_prod      TAGS: []
+      TASK TAGS: [bashrc, bashrc_common, bashrc_root, check_lvm_data_disk, check_lvm_logs_disk, disable_ipv6, docker, docker_add_repo_key, docker_add_user_to_group, docker_clean_packages, docker_compose_install, docker_conf_repo, docker_enabled, docker_install, docker_install_deps_on_debian_base, docker_install_on_debian_base, docker_remove, docker_remove_from_debian_base, install_base_packages, install_base_packages_on_centos, install_base_packages_on_debian_base, install_repositories_on_centos, lvm_disks, motd, mount_lvm_data_disk, mount_lvm_logs_disk, remove_cache_from_debian_base, remove_docker_on_debian_base, role_common, role_docker, role_zabbix_agent, set_timezone, ssh_pubkeys, update_all_packages_on_centos, update_all_packages_on_debian_base, vimrc, vimrc_common, vimrc_root, zbx_bkp_files, zbx_config_cli, zbx_delete_defaults, zbx_enable_cli, zbx_install_cli, zbx_install_cli_on_centos, zbx_install_cli_on_debian_base, zbx_install_release, zbx_install_release_on_centos, zbx_install_release_on_debian_base, zbx_remove, zbx_remove_cli, zbx_remove_from_centos, zbx_remove_from_debian_base]
+```
+
+Now we can execute only the role with the target tag
+```bash
+ansible-playbook -i inventories/production playbooks-production.yml --tags="role_docker"
+```
+
+We can execute the playbook skipping some tags like
+```bash
+ansible-playbook -i inventories/production playbooks-production.yml --skip-tags="role_docker"
+```
+
 
 ## Using Modules
 - https://docs.ansible.com/ansible/latest/modules/yum_module.html
@@ -497,6 +609,13 @@ PLAY RECAP *********************************************************************
 - https://docs.ansible.com/ansible/latest/user_guide/playbooks_filters.html#math
 - https://docs.ansible.com/ansible/latest/modules/parted_module.html
 - https://docs.ansible.com/ansible/latest/modules/authorized_key_module.html
+- https://docs.ansible.com/ansible/latest/modules/filesystem_module.html#filesystem-module
+- https://docs.ansible.com/ansible/latest/modules/lvg_module.html
+- https://docs.ansible.com/ansible/latest/modules/lvol_module.html
+- https://docs.ansible.com/ansible/latest/modules/command_module.html#command-module
+- https://docs.ansible.com/ansible/latest/modules/get_url_module.html
+- https://docs.ansible.com/ansible/latest/modules/mount_module.html
+- https://docs.ansible.com/ansible/latest/modules/synchronize_module.html
 
 
 ## References
@@ -547,4 +666,6 @@ PLAY RECAP *********************************************************************
 - https://www.percona.com/blog/2020/04/27/how-do-ansible-tags-work/#:~:text=A%20tag%20is%20an%20attribute,execute%20a%20subset%20of%20tasks.&text=Now%20to%20see%20the%20effect,know%20which%20tasks%20will%20run.
 - https://linuxconfig.org/redhat-8-configure-ntp-server
 - https://www.mydailytutorials.com/working-ansible-variables-conditionals/
+- https://docs.ansible.com/ansible/latest/modules/get_url_module.html
+- https://www.shellhacks.com/ansible-when-variable-is-defined-exists-empty-true/
 
