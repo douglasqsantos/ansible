@@ -2,15 +2,21 @@
 
 ## TODO:
 - [ ] Upgrade the venv
-- [ ] Configure the timezone
+- [ X ] Configure the timezone
 - [ ] Configure docker
-- [ ] Configure ipv6
+- [ X ] Configure ipv6
+- [ ] LVM
+- [ ] Cadvisor
+- [ ] logspout
+- [ ] MongoDB
 
 Upgrade the venv
 ```bash
+sudo apt-get install python3-venv
 python3 -m venv venv_ansible
 source bin/venv_ansible/activate
-pip install --upgrade pip setuptools
+pip3 install --upgrade pip setuptools
+pip3 install --upgrade ansible
 ```
 
 ## Installing on Mac OS X
@@ -443,10 +449,39 @@ changed: [ubuntu01]
 PLAY RECAP ****************************************************************************************************************************************************
 centos01                   : ok=12   changed=8    unreachable=0    failed=0    skipped=4    rescued=0    ignored=0
 ubuntu01                   : ok=13   changed=9    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
-``` 
+```
 
 
+Executing only tasks with tag bashrc
+```bash
+ansible-playbook -i inventories/homolog playbooks.yml --tags="bashrc"
 
+PLAY [linux] *****************************************************************************************************************************************************************************
+TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
+
+TASK [common : Configure the .bashrc for root] **********************************************************************************************************************************************ok: [pega02]
+
+TASK [Configure the .bashrc for common user] ************************************************************************************************************************************************changed: [pega02] => (item=jmadmin)
+
+RUNNING HANDLER [common : Common bashrc changed] ********************************************************************************************************************************************ok: [pega02] => {
+    "msg": "Common bashrc changed"
+}
+
+PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
+
+
+Excuting only tasks with tag ssh_pubkeys
+```bash
+ansible-playbook -i inventories/homolog playbooks.yml --tags="ssh_pubkeys"
+
+PLAY [linux] *****************************************************************************************************************************************************************************
+TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
+
+TASK [common : Set up Authorized Keys] ******************************************************************************************************************************************************ok: [pega02] => (item=['jmadmin', 'jm004.pem.pub'])
+
+PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+```
 
 ## Using Modules
 - https://docs.ansible.com/ansible/latest/modules/yum_module.html
@@ -511,3 +546,5 @@ ubuntu01                   : ok=13   changed=9    unreachable=0    failed=0    s
 - https://docs.ansible.com/ansible/latest/modules/authorized_key_module.html
 - https://www.percona.com/blog/2020/04/27/how-do-ansible-tags-work/#:~:text=A%20tag%20is%20an%20attribute,execute%20a%20subset%20of%20tasks.&text=Now%20to%20see%20the%20effect,know%20which%20tasks%20will%20run.
 - https://linuxconfig.org/redhat-8-configure-ntp-server
+- https://www.mydailytutorials.com/working-ansible-variables-conditionals/
+

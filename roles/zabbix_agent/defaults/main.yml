@@ -27,4 +27,3 @@ packages_to_remove:
   - zabbix-release
   - zabbix-sender
 ...
-

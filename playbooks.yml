@@ -11,12 +11,18 @@
   # Roles: list of roles to be imported into the play
   roles:
     - role: common
-    # - role: zabbix_agent
-    #   vars:
-    #     zbx_server: 127.0.0.2 
-    # - role: zabbix_agent
-    #   vars:
-    #     zbx_server: 127.0.0.2 
+      vars:
+        disable_ipv6: 'yes'
+        common_users:
+          - jmadmin
+        common_keys:
+          - ~/.ssh/id_rsa.pub
+    - role: docker
+      vars:
+        docker_compose_version: '1.26.2'
+    - role: zabbix_agent
+      vars:
+        zbx_server: 'zabbix.dqs.local'
 
 # Three dots indicate the end of a YAML document
 ...

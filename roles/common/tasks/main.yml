@@ -2,6 +2,15 @@
 # tasks file for common
 
 ## Packages for Ubuntu/Debian
+- name: Update all packages to the latest version on Ubuntu/Debian
+  apt:
+    upgrade: dist
+  when: ansible_distribution_file_variety == 'Debian'
+  tags:
+    - update_all_packages_on_debian_base
+    - install_base_packages_on_debian_base
+    - install_base_packages
+
 - name: Install Base Packages on Ubuntu/Debian
   apt:
     name: "{{ item }}"
@@ -13,7 +22,37 @@
     - install_base_packages_on_debian_base
     - install_base_packages
 
+- name: Clean useless packages from the cache on Ubuntu/Debian
+  apt:
+    autoclean: yes
+  when: ansible_distribution_file_variety == 'Debian'
+  tags:
+    - remove_cache_from_debian_base
+    - install_base_packages
+
 ## Packages for CentOS
+- name: Update all packages to the latest version on CentOS
+  yum:
+    name: '*'
+    state: latest
+  when: ansible_distribution == 'CentOS'
+  tags:
+    - update_all_packages_on_centos
+    - install_base_packages_on_centos
+    - install_base_packages
+
+- name: Install Repositories Packages on CentOS
+  yum:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items: "{{ packages_repo_rpm }}"
+  when: ansible_distribution == 'CentOS'
+  tags:
+    - install_repositories_on_centos
+    - install_base_packages_on_centos
+    - install_base_packages
+
 - name: Install Base Packages on CentOS
   yum:
     name: "{{ item }}"
@@ -178,4 +217,45 @@
   notify: Authorized Keys
   tags:
     - ssh_pubkeys
+
+## IPV6
+- name: Disable IPV6 for all interfaces
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  when: disable_ipv6 == 'yes'
+  tags:
+    - disable_ipv6
+
+- name: Disable IPV6 by default
+  sysctl:
+    name: net.ipv6.conf.default.disable_ipv6
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  when: disable_ipv6 == 'yes'
+  tags:
+    - disable_ipv6
+
+- name: Disable IPV6 for loopback
+  sysctl:
+    name: net.ipv6.conf.lo.disable_ipv6
+    value: '1'
+    sysctl_set: yes
+    state: present
+    reload: yes
+  when: disable_ipv6 == 'yes'
+  tags:
+    - disable_ipv6
+
+## Timezone 
+- name: "Set timezone to {{ timezone }}"
+  timezone:
+    name: "{{ timezone }}"
+  tags:
+    - set_timezone
 ...

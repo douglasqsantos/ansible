@@ -21,10 +21,13 @@ vim_files:
   - gruvbox.vim
   - monokai.vim
 vim_colors: '.vim/colors'
+disable_ipv6: 'yes'
+timezone: 'America/Sao_Paulo'
 common_keys:
-  - id_rsa.pub
+  - ~/.ssh/id_rsa.pub
 packages_deb:
   - python-apt
+  - python-apt-common
   - htop
   - vim
   - vim-scripts
@@ -60,8 +63,9 @@ packages_deb:
   - bc
   - fish
   - netcat
-packages_rpm:
+packages_repo_rpm:
   - epel-release
+packages_rpm:
   - wget
   - curl
   - bind-utils
