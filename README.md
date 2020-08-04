@@ -2,9 +2,9 @@
 
 ## TODO:
 - [ ] Upgrade the venv
-- [ X ] Configure the timezone
+- [X] Configure the timezone
 - [ ] Configure docker
-- [ X ] Configure ipv6
+- [X] Configure ipv6
 - [ ] LVM
 - [ ] Cadvisor
 - [ ] logspout
