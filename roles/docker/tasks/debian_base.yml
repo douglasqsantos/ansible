@@ -113,20 +113,7 @@
   notify:
     - Remove useless packages from the cache on Ubuntu/Debian
     - Remove dependencies that are no longer required on Ubuntu/Debian
-  tags:
-    - remove_docker_on_debian_base
-
-## Remove files
-- name: Delete Docker completion Files
-  file:
-    path: "{{ item }}"
-    state: absent
-  with_items:
-    - "{{ docker_completion_path }}"
-    - "{{ docker_compose_bash_completion_path }}"
-  when:
-    - ansible_distribution_file_variety == 'Debian'
-    - remove_docker == 'yes'
+    - Delete Docker completion Files
   tags:
     - remove_docker_on_debian_base
 ...

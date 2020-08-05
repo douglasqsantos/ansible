@@ -4,9 +4,10 @@
 - [X] Upgrade the venv
 - [X] Configure the timezone
 - [X] Configure docker Ubuntu/Debian
-- [ ] Configure docker CentOS
+- [X] Configure docker CentOS
 - [X] Configure ipv6
 - [X] LVM
+- [ ] LVM into a Role
 - [ ] Cadvisor
 - [ ] Node_exporter
 - [ ] logspout
@@ -211,9 +212,14 @@ We can execute the playbook for a single host and with a single role tag
 ansible-playbook -i inventories/homolog playbooks-homolog.yml --limit ubuntu01 --tags="role_docker"
 ```
 
-We can execute the playbook for a single host and with a single role tag and setting the variable
+We can execute the playbook for a single host with a single role tag and setting the variable
 ```
 ansible-playbook -i inventories/homolog playbooks-homolog.yml --limit ubuntu01 --tags="role_docker" --extra-vars "remove_docker='yes'"
+```
+
+We can execute the playbook for a group of hosts with a single role tag and setting the variable
+```
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_docker" --extra-vars "remove_docker='yes'"
 ```
 
 ## Using Modules and Others

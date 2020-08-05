@@ -5,5 +5,5 @@
   when: ansible_distribution_file_variety == 'Debian'
 - name: Adding Tasks for RedHat Base
   import_tasks: redhat_base.yml
-  when: ansible_distribution == 'CentOS'
+  when: ansible_distribution_file_variety == 'RedHat'
 ...

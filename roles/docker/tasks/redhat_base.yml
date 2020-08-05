@@ -1,6 +1,85 @@
 ---
 # Tasks file for Role Docker and OS RedHat Base
-- name: Debug
-  debug:
-    msg: "RedHat Base"
+########################################
+## Install Docker Tasks
+########################################
+## Remove the old packages
+- name: Remove Old Docker Packages on RedHat/CentOS
+  yum:
+    name: "{{ item }}"
+    state: absent
+    autoremove: yes
+  with_items:
+    - "{{ packages_rpm_to_remove }}"
+  when:
+    - ansible_distribution_file_variety == 'RedHat'
+    - remove_docker_olds == 'yes'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_remove_from_redhat_base
+    - docker_remove
+
+## Adding the Repository
+- name: Add Docker Repository on RedHat/CentOS
+  yum_repository:
+    name: docker-ce-stable
+    state: present
+    enabled: yes
+    description: "Docker CE Stable - $basearch"
+    baseurl: "https://download.docker.com/linux/centos/{{ ansible_distribution_major_version }}/$basearch/stable"
+    gpgkey: "https://download.docker.com/linux/centos/gpg"
+    gpgcheck: yes
+  when:
+    - ansible_distribution_file_variety == 'RedHat'
+    - remove_docker_olds == 'yes'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_add_repo
+    - docker_install_on_redhat_base
+    - docker_install
+
+## Install Docker
+- name: Install Docker on RedHat/CentOS
+  yum:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - "{{ packages_docker_rpm }}"
+  when:
+    - ansible_distribution_file_variety == 'RedHat'
+    - remove_docker_olds == 'yes'
+    - remove_docker != 'yes'
+  notify:
+    - Adding common user into group docker
+    - Enabling Docker
+    - Start Docker
+    - Download Docker completion
+    - Download Docker Compose file with check (sha256)
+    - Download Docker Compose completion
+  tags:
+    - docker
+    - docker_install_on_redhat_base
+    - docker_install
+
+########################################
+## Remove Docker Tasks
+########################################
+## Remover Docker
+- name: Remove Docker on RedHat/CentOS
+  yum:
+    name: "{{ item }}"
+    state: absent
+    autoremove: yes
+  with_items:
+    - "{{ packages_docker_rpm }}"
+  when:
+    - ansible_distribution_file_variety == 'RedHat'
+    - remove_docker == 'yes'
+  notify:
+    - Delete Docker completion Files
+  tags:
+    - remove_docker_on_redhat_base
 ...
