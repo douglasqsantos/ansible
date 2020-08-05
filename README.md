@@ -1,7 +1,7 @@
 # Ansible Repository
 
 ## TODO:
-- [ ] Upgrade the venv
+- [X] Upgrade the venv
 - [X] Configure the timezone
 - [X] Configure docker Ubuntu/Debian
 - [ ] Configure docker CentOS
@@ -12,40 +12,26 @@
 - [ ] logspout
 - [ ] MongoDB
 
-Upgrade the venv
-```bash
-sudo apt-get install python3-venv
-python3 -m venv venv_ansible
-source bin/venv_ansible/activate
-pip3 install --upgrade pip setuptools
-pip3 install --upgrade ansible
-```
-
 ## Installing on Mac OS X
-
-Installing the VirtualEnv
-```bash
-sudo pip3 install virtualenv pyyaml
-```
 
 Creating the Virtual Env
 ```bash
-virtualenv venv
+python3 -m venv venv_ansible
 ```
 
 Activating the Virtual Env
 ```bash
-source venv/bin/activate
+source venv_ansible/bin/activate
 ```
 
 Upgrading the pip command line
 ```bash
-pip install --upgrade pip
+pip install --upgrade pip setuptools
 ```
 
 Installing the Ansible Stable Version
 ```bash
-pip3 install ansible
+pip install --upgrade ansible
 ```
 
 Checking if we have the ansible
@@ -75,32 +61,27 @@ localhost | SUCCESS => {
 
 Installing the dependencies
 ```bash
-sudo apt install python3-pip fish -y
-```
-
-Installing the VirtualEnv
-```bash
-sudo pip3 install virtualenv pyyaml
+sudo apt install python3-venv python3-pip
 ```
 
 Creating the Virtual Env
 ```bash
-virtualenv venv
+python3 -m venv venv_ansible
 ```
 
 Activating the Virtual Env
 ```bash
-source venv/bin/activate
+source venv_ansible/bin/activate
 ```
 
 Upgrading the pip command line
 ```bash
-pip install --upgrade pip
+pip3 install --upgrade pip setuptools
 ```
 
 Installing the Ansible Stable Version
 ```bash
-pip install ansible
+pip3 install --upgrade ansible
 ```
 
 Checking if we have the ansible
@@ -132,9 +113,14 @@ localhost | SUCCESS => {
 - Download the Repository
 - Build the Image with **docker-compose build**
 
+Building the Image
+```
+docker build -t ansible .
+```
+
 Now we can exec the image
 ```bash
-docker run --rm -it -v "${PWD}:/ansible/workdir" -w /ansible douglasqsantos/ansible fish
+docker run --rm -it -v "${PWD}:/ansible/workspace" -w /ansible ansible fish
 ```
 
 Now we need to import the environment
@@ -153,435 +139,61 @@ ansible 2.9.11
   python version = 3.8.5 (default, Jul 20 2020, 23:11:29) [GCC 9.3.0]
 ```
 
-Let's access the directory with the source code
-```bash
-cd workdir/
-```
+## Commands to Use
 
-Now let's ping the localhost
+Ping to localhost
 ```bash
 ansible all -i localhost, -c local -m ping
-[WARNING]: Ansible is being run in a world writable directory (/ansible/workdir), ignoring it as an ansible.cfg source. For more information see
-https://docs.ansible.com/ansible/devel/reference_appendices/config.html#cfg-in-world-writable-dir
-[WARNING]: Platform linux on host localhost is using the discovered Python interpreter at /usr/bin/python3, but future installation of another Python interpreter could change this. See
-https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
-localhost | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
 ```
 
-## SSH Copy-ID
-
-Before start the playbooks need to copy the ssh key for all nodes as follows
+Ping a Group of hosts
 ```bash
-ssh-copy-id douglas@10.0.0.22
-/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/Users/douglas/.ssh/id_rsa.pub"
-/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
-/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
-douglas@10.0.0.22's password:
-
-Number of key(s) added:        1
-
-Now try logging into the machine, with:   "ssh 'douglas@10.0.0.22'"
-and check to make sure that only the key(s) you wanted were added.
+ansible mongo_prod -i inventories/production -m ping
 ```
 
-## Listing the information about the SO
+Let's check the playbook syntax
 ```bash
-ansible linux -i inventories/homolog -m setup -a 'filter=ansible_distribution*'
+ansible-playbook --syntax-check -i inventories/homolog playbooks.yml
 ```
 
-## Checking if all the nodes are reacheable 
-
+Getting information about the SO
 ```bash
-ansible linux -i inventories/homolog -m ping
-[WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
-https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
-debian01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-centos01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/libexec/platform-python"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-ubuntu01 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false,
-    "ping": "pong"
-}
+ansible mongo_prod -i inventories/production -m setup -a 'filter=ansible_distribution*'
 ```
 
-Listing the information about the SO
-```bash
-ansible linux -i inventories/homolog -m setup -a 'filter=ansible_distribution*'
-[WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
-https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
-debian01 | SUCCESS => {
-    "ansible_facts": {
-        "ansible_distribution": "Debian",
-        "ansible_distribution_file_parsed": true,
-        "ansible_distribution_file_path": "/etc/os-release",
-        "ansible_distribution_file_variety": "Debian",
-        "ansible_distribution_major_version": "10",
-        "ansible_distribution_release": "buster",
-        "ansible_distribution_version": "10",
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
-    "changed": false
-}
-ubuntu01 | SUCCESS => {
-    "ansible_facts": {
-        "ansible_distribution": "Ubuntu",
-        "ansible_distribution_file_parsed": true,
-        "ansible_distribution_file_path": "/etc/os-release",
-        "ansible_distribution_file_variety": "Debian",
-        "ansible_distribution_major_version": "18",
-        "ansible_distribution_release": "bionic",
-        "ansible_distribution_version": "18.04",
-        "discovered_interpreter_python": "/usr/bin/python3"
-    },
-    "changed": false
-}
-centos01 | SUCCESS => {
-    "ansible_facts": {
-        "ansible_distribution": "CentOS",
-        "ansible_distribution_file_parsed": true,
-        "ansible_distribution_file_path": "/etc/redhat-release",
-        "ansible_distribution_file_variety": "RedHat",
-        "ansible_distribution_major_version": "8",
-        "ansible_distribution_release": "Core",
-        "ansible_distribution_version": "8.2",
-        "discovered_interpreter_python": "/usr/libexec/platform-python"
-    },
-    "changed": false
-}
-```
-
-## Executing into a single host
-
+Executing a playbook in a single host
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --limit ubuntu01
 ```
 
-## Executing tasks with tags
-
 Checking the tags availables
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --list-tags
+```
 
-playbook: playbooks.yml
+Executing only tasks with tag bashrc
+```bash
+ansible-playbook -i inventories/homolog playbooks.yml --tags="bashrc"
+```
 
-  play #1 (linux): linux	TAGS: []
-      TASK TAGS: [bashrc, bashrc_common, bashrc_root, motd, ssh_pubkeys, vimrc, vimrc_common, vimrc_root]
+Excuting only tasks with tag ssh_pubkeys
+```bash
+ansible-playbook -i inventories/homolog playbooks.yml --tags="ssh_pubkeys"
 ```
 
 Checking the tags and filtering the bashrc
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --list-tags --tags=bashrc
-
-playbook: playbooks.yml
-
-  play #1 (linux): linux	TAGS: []
-      TASK TAGS: [bashrc, bashrc_common, bashrc_root]
 ```
 
 Checking the tags and skip the bashrc
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml --list-tags --skip-tags=bashrc
-
-playbook: playbooks.yml
-
-  play #1 (linux): linux	TAGS: []
-      TASK TAGS: [motd, ssh_pubkeys, vimrc, vimrc_common, vimrc_root]
 ```
 
-Executing only tasks with tag bashrc
-```bash
-ansible-playbook -i inventories/homolog playbooks.yml --tags="bashrc"
-
-PLAY [linux] ***********************************************************************************************************************************************************************************************
-
-TASK [Gathering Facts] *************************************************************************************************************************************************************************************
-[WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
-https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
-ok: [debian01]
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [common : Configure the .bashrc for root] *************************************************************************************************************************************************************
-ok: [debian01]
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [Configure the .bashrc for common user] ***************************************************************************************************************************************************************
-ok: [debian01] => (item=douglas)
-ok: [ubuntu01] => (item=douglas)
-ok: [centos01] => (item=douglas)
-
-PLAY RECAP *************************************************************************************************************************************************************************************************
-centos01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-debian01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-ubuntu01                   : ok=3    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-```
-
-Excuting only tasks with tag ssh_pubkeys
-```bash
-ansible-playbook -i inventories/homolog playbooks.yml --tags="ssh_pubkeys"
-
-PLAY [linux] ***********************************************************************************************************************************************************************************************
-
-TASK [Gathering Facts] *************************************************************************************************************************************************************************************
-[WARNING]: Platform linux on host debian01 is using the discovered Python interpreter at /usr/bin/python, but future installation of another Python interpreter could change this. See
-https://docs.ansible.com/ansible/2.9/reference_appendices/interpreter_discovery.html for more information.
-ok: [debian01]
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [common : Set up Authorized Keys] *********************************************************************************************************************************************************************
-ok: [debian01] => (item=['douglas', 'id_rsa.pub'])
-ok: [centos01] => (item=['douglas', 'id_rsa.pub'])
-ok: [ubuntu01] => (item=['douglas', 'id_rsa.pub'])
-
-PLAY RECAP *************************************************************************************************************************************************************************************************
-centos01                   : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-debian01                   : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-ubuntu01                   : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-```
-
-## Checking the tags availables
-```bash
-ansible-playbook -i inventories/homolog playbooks.yml --list-tags
-
-playbook: playbooks.yml
-
-  play #1 (linux): linux	TAGS: []
-      TASK TAGS: [zbx_bkp_files, zbx_config_cli, zbx_delete_defaults, zbx_enable_cli, zbx_install_cli, zbx_install_cli_on_centos, zbx_install_cli_on_debian_base, zbx_install_release, zbx_install_release_on_centos, zbx_install_release_on_debian_base, zbx_remove, zbx_remove_cli, zbx_remove_from_centos, zbx_remove_from_debian_base]
-```
-
-## Let's check the playbook syntax
-```bash
-ansible-playbook --syntax-check -i inventories/homolog playbooks.yml
-
-playbook: playbooks.yml
-```
-
-## Let's execute the role
+Let's execute the Playbook
 ```bash
 ansible-playbook -i inventories/homolog playbooks.yml
-```
-
-## Testing the connection with the a host group
-```json
-ansible group03 -i inventories/homolog -m ping
-group03_node05 | SUCCESS => {
-    "ansible_facts": {
-        "discovered_interpreter_python": "/usr/bin/python"
-    },
-    "changed": false,
-    "ping": "pong"
-}
-[...]
-```
-
-## Executing the Zabbix Agent Role on Host01
-
-Let's check the playbook configuration
-```bash
-ansible-playbook --syntax-check -i inventories/homolog zbx_agent_playbook.yml
-
-playbook: zbx_agent_playbook.yml
-```
-
-Let's execute the playbook
-```bash
-ansible-playbook -i inventories/homolog zbx_agent_playbook.yml
-
-PLAY [host_dev] *****************************************************************************************************************************************************************************
-TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
-
-TASK [zabbix_agent : Remove Packages on CentOS] *********************************************************************************************************************************************skipping: [pega02]
-
-TASK [zabbix_agent : Remove Packages on Ubuntu] *********************************************************************************************************************************************changed: [pega02]
-
-TASK [zabbix_agent : Clean useless packages from the cache] *********************************************************************************************************************************changed: [pega02]
-
-TASK [zabbix_agent : Install Zabbix Release on CentOS] **************************************************************************************************************************************skipping: [pega02]
-
-TASK [zabbix_agent : Install Zabbix Release on Ubuntu] **************************************************************************************************************************************[changed: [pega02]
-
-TASK [zabbix_agent : Install Zabbix Agent on Ubuntu] ****************************************************************************************************************************************changed: [pega02]
-
-TASK [zabbix_agent : Install Zabbix Agent on CentOS] ****************************************************************************************************************************************skipping: [pega02]
-
-TASK [zabbix_agent : Enable Zabbix Agent] ***************************************************************************************************************************************************ok: [pega02]
-
-TASK [zabbix_agent : Find Zabbix Agent Files] ***********************************************************************************************************************************************ok: [pega02]
-
-TASK [zabbix_agent : Backup Find Zabbix Agent Files] ****************************************************************************************************************************************changed: [pega02] => (item={'uid': 0, 'woth': False, 'mtime': 1593414000.0, 'inode': 791072, 'isgid': False, 'size': 13936, 'roth': True, 'isuid': False, 'isreg': True, 'pw_name': 'root', 'gid': 0, 'ischr': False, 'wusr': True, 'xoth': False, 'rusr': True, 'nlink': 1, 'issock': False, 'rgrp': True, 'gr_name': 'root', 'path': '/etc/zabbix/zabbix_agentd.conf', 'xusr': False, 'atime': 1596221043.4076946, 'isdir': False, 'ctime': 1596221043.0156934, 'isblk': False, 'xgrp': False, 'dev': 2049, 'wgrp': False, 'isfifo': False, 'mode': '0644', 'islnk': False})
-
-TASK [zabbix_agent : Remove Custom files for Zabbix Agent] **********************************************************************************************************************************changed: [pega02] => (item={'uid': 0, 'woth': False, 'mtime': 1593414000.0, 'inode': 791072, 'isgid': False, 'size': 13936, 'roth': True, 'isuid': False, 'isreg': True, 'pw_name': 'root', 'gid': 0, 'ischr': False, 'wusr': True, 'xoth': False, 'rusr': True, 'nlink': 1, 'issock': False, 'rgrp': True, 'gr_name': 'root', 'path': '/etc/zabbix/zabbix_agentd.conf', 'xusr': False, 'atime': 1596221043.4076946, 'isdir': False, 'ctime': 1596221043.0156934, 'isblk': False, 'xgrp': False, 'dev': 2049, 'wgrp': False, 'isfifo': False, 'mode': '0644', 'islnk': False})
-
-TASK [zabbix_agent : Creating the Zabbix Agent Custom File Directory] ***********************************************************************************************************************ok: [pega02]
-
-TASK [Template zabbix_agentd.conf] **********************************************************************************************************************************************************changed: [pega02]
-
-RUNNING HANDLER [zabbix_agent : Stop Zabbix Agent] ******************************************************************************************************************************************changed: [pega02]
-
-RUNNING HANDLER [zabbix_agent : Restart Zabbix Agent] ***************************************************************************************************************************************changed: [pega02]
-
-PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=13   changed=9    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
-```
-
-## Executing the Zabbix Agent Role
-
-Let's check the playbook syntax
-```bash
-ansible-playbook --syntax-check -i inventories/homolog zbx_agent_playbook.yml
-
-playbook: zbx_agent_playbook.yml
-```
-
-Let's execute the role
-```bash
-ansible-playbook -i inventories/homolog zbx_agent_playbook.yml
-
-PLAY [linux] **************************************************************************************************************************************************
-
-TASK [Gathering Facts] ****************************************************************************************************************************************
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [zabbix_agent : Remove Packages on CentOS] ***************************************************************************************************************
-skipping: [ubuntu01]
-changed: [centos01]
-
-TASK [zabbix_agent : Remove Packages on Ubuntu] ***************************************************************************************************************
-skipping: [centos01]
-changed: [ubuntu01]
-
-TASK [zabbix_agent : Clean useless packages from the cache] ***************************************************************************************************
-skipping: [centos01]
-changed: [ubuntu01]
-
-TASK [zabbix_agent : Install Zabbix Release on CentOS] ********************************************************************************************************
-skipping: [ubuntu01]
-changed: [centos01]
-
-TASK [zabbix_agent : Install Zabbix Release on Ubuntu] ********************************************************************************************************
-skipping: [centos01]
-changed: [ubuntu01]
-
-TASK [zabbix_agent : Install Zabbix Agent on Ubuntu] **********************************************************************************************************
-skipping: [centos01]
-changed: [ubuntu01]
-
-TASK [zabbix_agent : Install Zabbix Agent on CentOS] **********************************************************************************************************
-skipping: [ubuntu01]
-changed: [centos01]
-
-TASK [zabbix_agent : Enable Zabbix Agent] *********************************************************************************************************************
-ok: [ubuntu01]
-changed: [centos01]
-
-TASK [zabbix_agent : Find Zabbix Agent Files] *****************************************************************************************************************
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [zabbix_agent : Backup Find Zabbix Agent Files] **********************************************************************************************************
-changed: [ubuntu01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 13936, 'inode': 529305, 'dev': 2050, 'nlink': 1, 'atime': 1596141450.1493006, 'mtime': 1593414000.0, 'ctime': 1596141449.1733446, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-changed: [centos01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf.rpmsave', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 441, 'inode': 67497769, 'dev': 64768, 'nlink': 1, 'atime': 1596141335.7901366, 'mtime': 1596032844.747316, 'ctime': 1596141388.2013996, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-changed: [centos01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 13936, 'inode': 668866, 'dev': 64768, 'nlink': 1, 'atime': 1593431950.0, 'mtime': 1593431950.0, 'ctime': 1596141466.0330148, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-
-TASK [zabbix_agent : Remove Custom files for Zabbix Agent] ****************************************************************************************************
-changed: [ubuntu01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 13936, 'inode': 529305, 'dev': 2050, 'nlink': 1, 'atime': 1596141450.1493006, 'mtime': 1593414000.0, 'ctime': 1596141449.1733446, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-changed: [centos01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf.rpmsave', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 441, 'inode': 67497769, 'dev': 64768, 'nlink': 1, 'atime': 1596141335.7901366, 'mtime': 1596032844.747316, 'ctime': 1596141388.2013996, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-changed: [centos01] => (item={'path': '/etc/zabbix/zabbix_agentd.conf', 'mode': '0644', 'isdir': False, 'ischr': False, 'isblk': False, 'isreg': True, 'isfifo': False, 'islnk': False, 'issock': False, 'uid': 0, 'gid': 0, 'size': 13936, 'inode': 668866, 'dev': 64768, 'nlink': 1, 'atime': 1593431950.0, 'mtime': 1593431950.0, 'ctime': 1596141466.0330148, 'gr_name': 'root', 'pw_name': 'root', 'wusr': True, 'rusr': True, 'xusr': False, 'wgrp': False, 'rgrp': True, 'xgrp': False, 'woth': False, 'roth': True, 'xoth': False, 'isuid': False, 'isgid': False})
-
-TASK [zabbix_agent : Creating the Zabbix Agent Custom File Directory] *****************************************************************************************
-ok: [ubuntu01]
-ok: [centos01]
-
-TASK [Template zabbix_agentd.conf] ****************************************************************************************************************************
-changed: [ubuntu01]
-changed: [centos01]
-
-RUNNING HANDLER [zabbix_agent : Stop Zabbix Agent] ************************************************************************************************************
-changed: [ubuntu01]
-ok: [centos01]
-
-RUNNING HANDLER [zabbix_agent : Restart Zabbix Agent] *********************************************************************************************************
-changed: [centos01]
-changed: [ubuntu01]
-
-PLAY RECAP ****************************************************************************************************************************************************
-centos01                   : ok=12   changed=8    unreachable=0    failed=0    skipped=4    rescued=0    ignored=0
-ubuntu01                   : ok=13   changed=9    unreachable=0    failed=0    skipped=3    rescued=0    ignored=0
-```
-
-
-Executing only tasks with tag bashrc
-```bash
-ansible-playbook -i inventories/homolog playbooks.yml --tags="bashrc"
-
-PLAY [host_dev] *****************************************************************************************************************************************************************************
-TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
-
-TASK [common : Configure the .bashrc for root] **********************************************************************************************************************************************ok: [pega02]
-
-TASK [Configure the .bashrc for common user] ************************************************************************************************************************************************changed: [pega02] => (item=jmadmin)
-
-RUNNING HANDLER [common : Common bashrc changed] ********************************************************************************************************************************************ok: [pega02] => {
-    "msg": "Common bashrc changed"
-}
-
-PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=4    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-```
-
-
-Excuting only tasks with tag ssh_pubkeys
-```bash
-ansible-playbook -i inventories/homolog playbooks.yml --tags="ssh_pubkeys"
-
-PLAY [host_dev] *****************************************************************************************************************************************************************************
-TASK [Gathering Facts] **********************************************************************************************************************************************************************ok: [pega02]
-
-TASK [common : Set up Authorized Keys] ******************************************************************************************************************************************************ok: [pega02] => (item=['jmadmin', 'jm004.pem.pub'])
-
-PLAY RECAP **********************************************************************************************************************************************************************************pega02                     : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
-```
-
-We can execute a single role in the playbook if it has some tag like
-```yaml
-[...]
-  - role: docker
-    vars:
-      docker_compose_version: '1.26.2'
-      remove_docker: 'yes'
-    tags:
-      - role_docker
-```
-
-We can list the tags
-```bash
-ansible-playbook -i inventories/production --list-tags playbooks-production.yml 
-
-playbook: playbooks-production.yml
-
-  play #1 (group_prod): group_prod      TAGS: []
-      TASK TAGS: [bashrc, bashrc_common, bashrc_root, check_lvm_data_disk, check_lvm_logs_disk, disable_ipv6, docker, docker_add_repo_key, docker_add_user_to_group, docker_clean_packages, docker_compose_install, docker_conf_repo, docker_enabled, docker_install, docker_install_deps_on_debian_base, docker_install_on_debian_base, docker_remove, docker_remove_from_debian_base, install_base_packages, install_base_packages_on_centos, install_base_packages_on_debian_base, install_repositories_on_centos, lvm_disks, motd, mount_lvm_data_disk, mount_lvm_logs_disk, remove_cache_from_debian_base, remove_docker_on_debian_base, role_common, role_docker, role_zabbix_agent, set_timezone, ssh_pubkeys, update_all_packages_on_centos, update_all_packages_on_debian_base, vimrc, vimrc_common, vimrc_root, zbx_bkp_files, zbx_config_cli, zbx_delete_defaults, zbx_enable_cli, zbx_install_cli, zbx_install_cli_on_centos, zbx_install_cli_on_debian_base, zbx_install_release, zbx_install_release_on_centos, zbx_install_release_on_debian_base, zbx_remove, zbx_remove_cli, zbx_remove_from_centos, zbx_remove_from_debian_base]
 ```
 
 Now we can execute only the role with the target tag
@@ -589,7 +201,7 @@ Now we can execute only the role with the target tag
 ansible-playbook -i inventories/production playbooks-production.yml --tags="role_docker"
 ```
 
-We can execute the playbook skipping some tags like
+We can execute the playbook skipping some role tags like
 ```bash
 ansible-playbook -i inventories/production playbooks-production.yml --skip-tags="role_docker"
 ```
