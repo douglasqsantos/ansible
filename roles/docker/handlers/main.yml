@@ -1,2 +1,63 @@
 ---
 # handlers file for docker
+
+####################################
+# Users/Groups Handlers
+####################################
+## Add users into docker group
+- name: Adding common user into group docker
+  user:
+    name: '{{ item }}'
+    groups: docker
+    append: yes
+  with_items:
+    - "{{ common_users }}"
+
+####################################
+# Service Handlers
+####################################
+## Enabling and starting the service
+- name: Enabling Docker
+  systemd:
+    name: docker
+    enabled: yes
+    masked: no
+
+####################################
+# Packages Handlers
+####################################
+## Remove useless Packages
+- name: Remove useless packages from the cache on Ubuntu/Debian
+  apt:
+    autoclean: yes
+
+## Remove dependencies useless
+- name: Remove dependencies that are no longer required on Ubuntu/Debian
+  apt:
+    autoremove: yes
+
+####################################
+# File Handlers
+####################################
+## Download Docker Compose
+- name: Download Docker Compose file with check (sha256)
+  get_url:
+    url: "{{ docker_compose_url }}"
+    dest: "{{ docker_compose_path }}"
+    mode: '0755'
+    checksum: "{{ docker_compose_checksum }}"
+
+## Docker completion
+- name: Download Docker completion
+  get_url:
+    url: "{{ docker_completion_url }}"
+    dest: "{{ docker_completion_path }}"
+    mode: '0644'
+
+## Docker Compose completion
+- name: Download Docker Compose completion
+  get_url:
+    url: "{{ docker_compose_bash_completion_url }}"
+    dest: "{{ docker_compose_bash_completion_path }}"
+    mode: '0644'
+...

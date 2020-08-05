@@ -206,8 +206,17 @@ We can execute the playbook skipping some role tags like
 ansible-playbook -i inventories/production playbooks-production.yml --skip-tags="role_docker"
 ```
 
+We can execute the playbook for a single host and with a single role tag
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --limit ubuntu01 --tags="role_docker"
+```
 
-## Using Modules
+We can execute the playbook for a single host and with a single role tag and setting the variable
+```
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --limit ubuntu01 --tags="role_docker" --extra-vars "remove_docker='yes'"
+```
+
+## Using Modules and Others
 - https://docs.ansible.com/ansible/latest/modules/yum_module.html
 - https://docs.ansible.com/ansible/latest/modules/apt_module.html
 - https://docs.ansible.com/ansible/latest/modules/sysctl_module.html#sysctl-module
@@ -228,6 +237,11 @@ ansible-playbook -i inventories/production playbooks-production.yml --skip-tags=
 - https://docs.ansible.com/ansible/latest/modules/get_url_module.html
 - https://docs.ansible.com/ansible/latest/modules/mount_module.html
 - https://docs.ansible.com/ansible/latest/modules/synchronize_module.html
+- https://docs.ansible.com/ansible/latest/modules/import_tasks_module.html
+- https://docs.ansible.com/ansible/latest/modules/import_role_module.html
+- https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+- https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
+- https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
 
 
 ## References

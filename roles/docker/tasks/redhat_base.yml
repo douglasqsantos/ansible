@@ -1,0 +1,6 @@
+---
+# Tasks file for Role Docker and OS RedHat Base
+- name: Debug
+  debug:
+    msg: "RedHat Base"
+...

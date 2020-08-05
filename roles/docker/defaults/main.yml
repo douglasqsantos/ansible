@@ -1,39 +1,67 @@
 ---
 # defaults file for docker
+####################################
+# Common Variables
+####################################
+## Remove the old Docker packages Flag
 remove_docker_olds: 'yes'
-docker_gpg_key: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
-docker_gpg_id: '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
-docker_repo_rpm_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/docker-ce.repo"
-docker_repo_file: '/etc/apt/sources.list.d/docker.list'
-docker_group: 'docker'
-docker_completion_url: 'https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker'
-docker_completion_path: '/etc/bash_completion.d/docker'
-docker_compose_version: '1.26.2'
-docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
-docker_compose_path: '/usr/local/bin/docker-compose'
-docker_compose_checksum: 'sha256:13e50875393decdb047993c3c0192b0a3825613e6dfc0fa271efed4f5dbdd6eb'
-docker_compose_bash_completion_url: 'https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose'
-docker_compose_bash_completion_path: '/etc/bash_completion.d/docker-compose'
+## Remove Docker Flag. Set to yes to Remove Docker from the System
 remove_docker: 'false'
+## Debian Base GPG Respository
+docker_gpg_key: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+## Debian Base GPG ID
+docker_gpg_id: '9DC858229FC7DD38854AE2D88D81803C0EBFCD88'
+## RedHat Url Repository
+docker_repo_rpm_url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/docker-ce.repo"
+## Debian Base Repository Path
+docker_repo_file: '/etc/apt/sources.list.d/docker.list'
+## Docker Group Name
+docker_group: 'docker'
+## Docker Completion URL
+docker_completion_url: 'https://raw.githubusercontent.com/docker/docker-ce/master/components/cli/contrib/completion/bash/docker'
+## Docker Completion Path
+docker_completion_path: '/etc/bash_completion.d/docker'
+## Docker Compose Version
+docker_compose_version: '1.26.2'
+## Docker Compose URL
+docker_compose_url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-{{ ansible_architecture }}"
+## Docker Compose Path
+docker_compose_path: '/usr/local/bin/docker-compose'
+## Docker Compose checksum
+docker_compose_checksum: 'sha256:13e50875393decdb047993c3c0192b0a3825613e6dfc0fa271efed4f5dbdd6eb'
+## Docker Compose Completion URL
+docker_compose_bash_completion_url: 'https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose'
+## Docker Compose Completion Path
+docker_compose_bash_completion_path: '/etc/bash_completion.d/docker-compose'
+## Default users to insert into Docker Group
 common_users:
-  - jmadmin
+  - douglas
+##########################################
+# Debian Base Systems
+##########################################
+## Old Docker Packages to Remove
 packages_deb_to_remove:
   - docker
   - docker-engine
   - docker.io
   - containerd
   - runc
+## Packages dependencies to install
 packages_deps_deb:
   - apt-transport-https
   - ca-certificates
   - curl
   - gnupg-agent
   - software-properties-common
+## Docker Packages to install
 packages_docker_deb:
   - docker-ce
   - docker-ce-cli
   - containerd.io
-## CentOS
+##########################################
+# RedHat Base Systems
+##########################################
+## Old Docker Packages to Remove
 packages_rpm_to_remove:
   - docker
   - docker-client
@@ -43,9 +71,11 @@ packages_rpm_to_remove:
   - docker-latest-logrotate
   - docker-logrotate
   - docker-engine
+## Packages dependencies to install
 packages_deps_rpm:
   - yum-utils
   - curl
+## Docker Packages to install
 packages_docker_rpm:
   - docker-ce
   - docker-ce-cli

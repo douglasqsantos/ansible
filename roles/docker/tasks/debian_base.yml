@@ -1,0 +1,132 @@
+---
+# Tasks file for Role Docker and OS Debian Base
+
+########################################
+## Install Docker Tasks
+########################################
+## Importing the GPG Key
+- name: Add an Apt signing key for Docker on Ubuntu/Debian
+  apt_key:
+    id: "{{ docker_gpg_id }}"
+    url: "{{ docker_gpg_key }}"
+    state: present
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_add_repo_key
+    - docker_conf_repo
+    - docker_install
+
+## Remove the old packages
+- name: Remove Old Docker Packages on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+    autoremove: yes
+  with_items:
+    - "{{ packages_deb_to_remove }}"
+  notify:
+    - Remove useless packages from the cache on Ubuntu/Debian
+    - Remove dependencies that are no longer required on Ubuntu/Debian
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker_olds == 'yes'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_remove_from_debian_base
+    - docker_remove
+
+## Install Dependencies
+- name: Install Docker Dependencies on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - "{{ packages_deps_deb }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_install_deps_on_debian_base
+    - docker_install
+
+## Configure the Repository
+- name: Template for Docker Repository [docker.lists] on Ubuntu/Debian
+  template:
+    src: templates/docker.lists.j2
+    dest: "{{ docker_repo_file }}"
+    backup: yes
+    force: yes
+    mode: '0644'
+    owner: 'root'
+    group: 'root'
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
+  tags:
+    - docker
+    - docker_conf_repo
+    - docker_install
+
+## Install Docker
+- name: Install Docker on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - "{{ packages_docker_deb }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker != 'yes'
+  notify:
+    - Adding common user into group docker
+    - Enabling Docker
+    - Download Docker completion
+    - Download Docker Compose file with check (sha256)
+    - Download Docker Compose completion
+  tags:
+    - docker
+    - docker_install_on_debian_base
+    - docker_install
+
+########################################
+## Remove Docker Tasks
+########################################
+## Remover Docker
+- name: Remove Docker on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+  with_items:
+    - "{{ packages_docker_deb }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker == 'yes'
+  notify:
+    - Remove useless packages from the cache on Ubuntu/Debian
+    - Remove dependencies that are no longer required on Ubuntu/Debian
+  tags:
+    - remove_docker_on_debian_base
+
+## Remove files
+- name: Delete Docker completion Files
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ docker_completion_path }}"
+    - "{{ docker_compose_bash_completion_path }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_docker == 'yes'
+  tags:
+    - remove_docker_on_debian_base
+...
