@@ -11,40 +11,20 @@
 
   # Roles: list of roles to be imported into the play
   roles:
-    - role: common
-      vars:
-        disable_ipv6: 'yes'
-        common_users:
-          - douglas
-        common_keys:
-          - ~/.ssh/id_rsa.pub
-        log_disk_bytes: 107374182400
-        logs_vg_name: 'vg_logs'
-        logs_lv_name: 'lv_logs'
-        logs_fs_type: 'xfs'
-        logs_fs_force: 'no'
-        logs_mount_point: '/var/log'
-        logs_mount: 'yes'
-        data_disk_bytes: 644245094400
-        data_vg_name: 'vg_data'
-        data_lv_name: 'lv_data'
-        data_fs_type: 'xfs'
-        data_fs_force: 'no'
-        data_mount_point: '/data'
-        data_mount: 'yes'
-      tags:
-        - role_common
     - role: docker
       vars:
-        docker_compose_version: '1.26.2'
-        remove_docker: 'no'
+        docker_install: true
       tags:
         - role_docker
-    - role: zabbix_agent
+    # - role: zabbix_agent
+    #   vars:
+    #     zbx_server: 'zabbix.h.dqs.local'
+    #   tags:
+    #     - role_zabbix_agent
+    - role: node_exporter
       vars:
-        zbx_server: 'zabbix.h.dqs.local'
+        node_exporter_install: true
       tags:
-        - role_zabbix_agent
-
+        - role_node_exporter
 # Three dots indicate the end of a YAML document
 ...

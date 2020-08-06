@@ -12,12 +12,12 @@
     state: present
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_add_repo_key
-    - docker_conf_repo
     - docker_install
+    - docker_install_on_debian_base
 
 ## Remove the old packages
 - name: Remove Old Docker Packages on Ubuntu/Debian
@@ -33,12 +33,13 @@
     - Remove dependencies that are no longer required on Ubuntu/Debian
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker_olds == 'yes'
-    - remove_docker != 'yes'
+    - remove_docker_olds == true
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_remove_from_debian_base
-    - docker_remove
+    - docker_install
+    - docker_install_on_debian_base
 
 ## Install Dependencies
 - name: Install Docker Dependencies on Ubuntu/Debian
@@ -50,11 +51,12 @@
     - "{{ packages_deps_deb }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_install_deps_on_debian_base
     - docker_install
+    - docker_install_on_debian_base
 
 ## Configure the Repository
 - name: Template for Docker Repository [docker.lists] on Ubuntu/Debian
@@ -68,11 +70,12 @@
     group: 'root'
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_conf_repo
     - docker_install
+    - docker_install_on_debian_base
 
 ## Install Docker
 - name: Install Docker on Ubuntu/Debian
@@ -84,7 +87,8 @@
     - "{{ packages_docker_deb }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   notify:
     - Adding common user into group docker
     - Enabling Docker
@@ -93,8 +97,8 @@
     - Download Docker Compose completion
   tags:
     - docker
-    - docker_install_on_debian_base
     - docker_install
+    - docker_install_on_debian_base
 
 ########################################
 ## Remove Docker Tasks
@@ -109,11 +113,12 @@
     - "{{ packages_docker_deb }}"
   when:
     - ansible_distribution_file_variety == 'Debian'
-    - remove_docker == 'yes'
+    - remove_docker != false
   notify:
     - Remove useless packages from the cache on Ubuntu/Debian
     - Remove dependencies that are no longer required on Ubuntu/Debian
     - Delete Docker completion Files
   tags:
-    - remove_docker_on_debian_base
+    - docker
+    - docker_remove_on_debian_base
 ...

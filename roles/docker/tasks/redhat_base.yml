@@ -13,12 +13,13 @@
     - "{{ packages_rpm_to_remove }}"
   when:
     - ansible_distribution_file_variety == 'RedHat'
-    - remove_docker_olds == 'yes'
-    - remove_docker != 'yes'
+    - remove_docker_olds == true
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_remove_from_redhat_base
-    - docker_remove
+    - docker_install
+    - docker_install_on_redhat_base
 
 ## Adding the Repository
 - name: Add Docker Repository on RedHat/CentOS
@@ -32,13 +33,12 @@
     gpgcheck: yes
   when:
     - ansible_distribution_file_variety == 'RedHat'
-    - remove_docker_olds == 'yes'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   tags:
     - docker
-    - docker_add_repo
-    - docker_install_on_redhat_base
     - docker_install
+    - docker_install_on_redhat_base
 
 ## Install Docker
 - name: Install Docker on RedHat/CentOS
@@ -50,8 +50,8 @@
     - "{{ packages_docker_rpm }}"
   when:
     - ansible_distribution_file_variety == 'RedHat'
-    - remove_docker_olds == 'yes'
-    - remove_docker != 'yes'
+    - docker_install == true
+    - remove_docker == false
   notify:
     - Adding common user into group docker
     - Enabling Docker
@@ -61,8 +61,8 @@
     - Download Docker Compose completion
   tags:
     - docker
-    - docker_install_on_redhat_base
     - docker_install
+    - docker_install_on_redhat_base
 
 ########################################
 ## Remove Docker Tasks
@@ -77,9 +77,10 @@
     - "{{ packages_docker_rpm }}"
   when:
     - ansible_distribution_file_variety == 'RedHat'
-    - remove_docker == 'yes'
+    - remove_docker != false
   notify:
     - Delete Docker completion Files
   tags:
-    - remove_docker_on_redhat_base
+    - docker
+    - docker_remove_on_redhat_base
 ...
