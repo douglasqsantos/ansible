@@ -222,6 +222,16 @@ We can execute the playbook for a group of hosts with a single role tag and sett
 ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_docker" --extra-vars "remove_docker='yes'"
 ```
 
+Creating a new Module
+```bash
+ansible-galaxy init monitoring_tools
+```
+
+Removing the Node_Exporter
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_monitoring_tools" --extra-vars "remove_node_exporter='yes'"
+```
+
 ## Using Modules and Others
 - https://docs.ansible.com/ansible/latest/modules/yum_module.html
 - https://docs.ansible.com/ansible/latest/modules/apt_module.html
@@ -248,6 +258,12 @@ ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_docke
 - https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
 - https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html
 - https://docs.ansible.com/ansible/latest/user_guide/playbooks_variables.html
+- https://galaxy.ansible.com/docs/contributing/creating_role.html
+- https://docs.ansible.com/ansible/latest/modules/archive_module.html
+- https://docs.ansible.com/ansible/latest/modules/unarchive_module.html
+- https://docs.ansible.com/ansible/latest/modules/user_module.html
+- https://docs.ansible.com/ansible/latest/modules/group_module.html
+- https://docs.ansible.com/ansible/latest/modules/copy_module.html
 
 
 ## References

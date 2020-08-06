@@ -1,0 +1,33 @@
+---
+# defaults file for monitoringtools
+#############################
+# Node_Exporter
+#############################
+# By default the node_exporter will be installed if call the role
+node_exporter_install: 'yes'
+## Flag to remove the Node_Exporter from the system
+remove_node_exporter: 'no'
+## Define the Node_Exporter version
+node_exporter_version: "1.0.1"
+## Define the Node_Exporter sha256
+node_exporter_checksum: "sha256:https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/sha256sums.txt"
+## Define the Node_Exporter User
+node_exporter_user: "node_exporter"
+## Define the Node_Exporter Group
+node_exporter_group: "node_exporter"
+## Define the Node_Exporter package Name
+node_exporter_pkg: "node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+## Define the Node_Exporter URL
+node_exporter_pkg_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_pkg }}"
+## Define the Node_Exporter Temp path
+node_exporter_pkg_path: "/tmp/{{ node_exporter_pkg }}"
+## Define the Node_Exporter extracted Dir
+node_exporter_extracted_dir: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64"
+## Define the Node_Exporter Full Path after extracted
+node_exporter_extracted_path: "{{ node_exporter_extracted_dir }}/node_exporter"
+## Define the Node_Exporter Binary path
+node_exporter_bin_path: '/usr/local/bin/node_exporter'
+## Define the Node_Exporter shell
+node_exporter_shell: '/bin/false'
+## Define the Node_Exporter Systemd Service
+node_exporter_systemd: '/etc/systemd/system/node_exporter.service'

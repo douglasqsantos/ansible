@@ -1,0 +1,41 @@
+---
+# handlers file for monitoringtools
+####################################
+# Service Handlers
+####################################
+## Enabling and starting the service
+- name: Enabling Node_Exporter
+  systemd:
+    name: node_exporter
+    enabled: yes
+    masked: no
+    daemon_reload: yes
+
+## Starting the Docker Service
+- name: Start Node_Exporter
+  systemd:
+    name: node_exporter
+    state: started
+    daemon_reload: yes
+
+## Disabling and starting the service
+- name: Disabling Node_Exporter
+  systemd:
+    name: node_exporter
+    enabled: no
+    daemon_reload: yes
+
+## Starting the Docker Service
+- name: Stop Node_Exporter
+  systemd:
+    name: node_exporter
+    state: stopped
+    daemon_reload: yes
+
+####################################
+# File Handlers
+####################################
+- name: Remove file Node_Exporter
+  file:
+    path: "{{ node_exporter_systemd }}"
+    state: absent

@@ -22,12 +22,14 @@
     name: docker
     enabled: yes
     masked: no
+    daemon_reload: yes
 
 ## Starting the Docker Service
 - name: Start Docker
   systemd:
     name: docker
     state: started
+    daemon_reload: yes
 
 ####################################
 # Packages Handlers
