@@ -9,7 +9,7 @@
 - [X] LVM
 - [ ] LVM into a Role
 - [ ] Cadvisor
-- [ ] Node_exporter
+- [X] Node_exporter
 - [ ] logspout
 - [ ] MongoDB
 
@@ -230,6 +230,51 @@ ansible-galaxy init monitoring_tools
 Removing the Node_Exporter
 ```bash
 ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_monitoring_tools" --extra-vars "remove_node_exporter='yes'"
+```
+
+## Role docker
+
+Enabling the Role
+```yaml
+vim playbooks-homolog.yml
+    - role: docker
+      vars:
+        docker_install: true
+      tags:
+        - role_docker
+```
+
+Install the Docker
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_docker"
+```
+
+Removing the Docker from the hosts
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_docker" --extra-vars "remove_docker=true"
+```
+
+## Role node_exporter
+
+Enabling the Role
+```yaml
+vim playbooks-homolog.yml
+[...]
+    - role: node_exporter
+      vars:
+        node_exporter_install: true
+      tags:
+        - role_node_exporter
+```
+
+Installing the Node Exporter
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_node_exporter"
+```
+
+Removing the Node_Exporter from the hosts
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_node_exporter" --extra-vars "remove_node_exporter=true"
 ```
 
 ## Using Modules and Others
