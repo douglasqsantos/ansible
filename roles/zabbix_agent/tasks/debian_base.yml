@@ -1,0 +1,185 @@
+---
+# Tasks file for Role Zabbix Agent and OS Debian Base
+########################################
+## Install Zabbix Agent Tasks
+########################################
+## List all the files to handle
+- name: Find Zabbix Agent Files on Ubuntu/Debian
+  find:
+    paths:
+      - '/etc/zabbix'
+    file_type: file
+    patterns: '*'
+    recurse: yes
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_backup_files == true
+    - zabbix_install == true
+    - remove_zabbix == false
+  register: files_to_backup
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Backup the Files before delete
+- name: Backup Zabbix Agent Files on Ubuntu/Debian
+  fetch:
+    src: "{{ item.path }}"
+    dest: "{{ zabbix_bkp_dir }}"
+  with_items:
+    - "{{ files_to_backup.files }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_backup_files == true
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Remove old Packages
+- name: Remove Packages on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+    autoremove: yes
+  with_items:
+    - "{{ packages_to_remove }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_remove_olds == true
+    - zabbix_install == true
+    - remove_zabbix == false
+  notify:
+    - Remove useless packages from the cache on Ubuntu/Debian
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Install Zabbix Release Package
+- name: Install Zabbix Release on Ubuntu/Debian
+  apt:
+    deb: "{{ zabbix_release_deb }}"
+    state: present
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Install Zabbix Agent
+- name: Install Zabbix Agent on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+    state: present
+  with_items:
+    - "{{ zabbix_packages }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  notify:
+    - Enable Zabbix Agent
+    - Stop Zabbix Agent
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## List all the files to handle
+- name: Find Zabbix Agent Files on Ubuntu/Debian
+  find:
+    paths:
+      - '/etc/zabbix'
+    file_type: file
+    patterns: '*'
+    recurse: yes
+  register: files_to_delete
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Remove Custom files
+- name: Remove Custom files for Zabbix Agent on Ubuntu/Debian
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: 
+    - "{{ files_to_delete.files }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Creating the Custom File Directory
+- name: Creating the Zabbix Agent Custom File Directory on Ubuntu/Debian
+  file:
+    path: "{{ zabbix_include_dir }}"
+    state: directory
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+## Configure the Zabbix Agent
+- name: Template zabbix_agentd.conf on Ubuntu/Debian
+  template:
+    src: templates/zabbix_agentd.conf.j2
+    dest: "{{ zabbix_agent_file }}"
+    force: yes
+    mode: '0644'
+    owner: root
+    group: root
+  notify:
+    - Restart Zabbix Agent
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - zabbix_install == true
+    - remove_zabbix == false
+  tags:
+    - zabbix_agent
+    - zabbix_install
+    - zabbix_install_on_debian_base
+
+########################################
+## Remove Zabbix Agent Tasks
+########################################
+## Remove Zabbix Agent
+- name: Remove Zabbix Agent on Ubuntu/Debian
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: yes
+  with_items:
+    - "{{ zabbix_packages }}"
+  when:
+    - ansible_distribution_file_variety == 'Debian'
+    - remove_zabbix != false
+  notify:
+    - Remove useless packages from the cache on Ubuntu/Debian
+    - Remove dependencies that are no longer required on Ubuntu/Debian
+  tags:
+    - zabbix_agent
+    - zabbix_agent_remove_on_debian_base
+...

@@ -1,13 +1,38 @@
 ---
 # handlers file for zabbix_agent
+####################################
+# Service Handlers
+####################################
+## Enable Zabbi Agent
+- name: Enable Zabbix Agent
+  systemd:
+    name: zabbix-agent
+    enabled: yes
+    masked: no
+
+## Stop Zabbix Agent
 - name: Stop Zabbix Agent
   systemd:
     name: zabbix-agent
     state: stopped
     daemon_reload: yes
 
+## Restart Zabbix Agent
 - name: Restart Zabbix Agent
   systemd:
     name: zabbix-agent
     state: restarted
     daemon_reload: yes
+
+####################################
+# Packages Handlers
+####################################
+## Remove useless Packages
+- name: Remove useless packages from the cache on Ubuntu/Debian
+  apt:
+    autoclean: yes
+
+## Remove dependencies useless
+- name: Remove dependencies that are no longer required on Ubuntu/Debian
+  apt:
+    autoremove: yes

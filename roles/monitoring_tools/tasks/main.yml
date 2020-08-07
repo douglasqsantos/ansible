@@ -1,4 +1,0 @@
----
-# tasks file for monitoring_tools
-- name: Adding Tasks for Node_Exporter
-  import_tasks: node_exporter.yml

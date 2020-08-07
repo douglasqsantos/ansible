@@ -1,6 +1,5 @@
 ---
 # Tasks file for Role Docker and OS Debian Base
-
 ########################################
 ## Install Docker Tasks
 ########################################
@@ -103,7 +102,7 @@
 ########################################
 ## Remove Docker Tasks
 ########################################
-## Remover Docker
+## Remove Docker
 - name: Remove Docker on Ubuntu/Debian
   apt:
     name: "{{ item }}"

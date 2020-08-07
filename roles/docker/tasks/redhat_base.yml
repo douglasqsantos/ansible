@@ -67,7 +67,7 @@
 ########################################
 ## Remove Docker Tasks
 ########################################
-## Remover Docker
+## Remove Docker
 - name: Remove Docker on RedHat/CentOS
   yum:
     name: "{{ item }}"

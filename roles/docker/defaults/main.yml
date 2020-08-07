@@ -7,7 +7,7 @@
 docker_install: false
 ## Remove the old Docker packages Flag
 remove_docker_olds: true
-## Remove Docker Flag. Set to yes to Remove Docker from the System
+## Remove Docker Flag. Set to true to Remove Docker from the System
 remove_docker: false
 ## Debian Base GPG Respository
 docker_gpg_key: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"

@@ -16,15 +16,18 @@
         docker_install: true
       tags:
         - role_docker
-    # - role: zabbix_agent
-    #   vars:
-    #     zbx_server: 'zabbix.h.dqs.local'
-    #   tags:
-    #     - role_zabbix_agent
+    - role: zabbix_agent
+      vars:
+        zabbix_install: true
+        zbx_server: 'zabbix.h.dqs.local'
+        zabbix_backup_files: false
+      tags:
+        - role_zabbix_agent
     - role: node_exporter
       vars:
         node_exporter_install: true
       tags:
         - role_node_exporter
+  # Three dots indicate the end of a YAML document
 # Three dots indicate the end of a YAML document
 ...

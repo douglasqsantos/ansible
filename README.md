@@ -237,6 +237,7 @@ ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_monit
 Enabling the Role
 ```yaml
 vim playbooks-homolog.yml
+[...]
     - role: docker
       vars:
         docker_install: true
@@ -276,6 +277,32 @@ Removing the Node_Exporter from the hosts
 ```bash
 ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_node_exporter" --extra-vars "remove_node_exporter=true"
 ```
+
+## Role zabbix_agent
+
+Enabling the Role
+```yaml
+vim playbooks-homolog.yml
+[...]
+    - role: zabbix_agent
+      vars:
+        zabbix_install: true
+        zbx_server: 'zabbix.h.dqs.local'
+        zabbix_backup_files: false
+      tags:
+        - role_zabbix_agent
+```
+
+Installing the Zabbix Agent
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_zabbix_agent"
+```
+
+Removing the Zabbix Agent from the hosts
+```bash
+ansible-playbook -i inventories/homolog playbooks-homolog.yml --tags="role_zabbix_agent" --extra-vars "remove_zabbix='true'"
+```
+
 
 ## Using Modules and Others
 - https://docs.ansible.com/ansible/latest/modules/yum_module.html
